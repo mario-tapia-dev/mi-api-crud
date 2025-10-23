@@ -13,7 +13,20 @@ app.use(express.json());
 // 1. OBTENER TODAS LAS TAREAS (GET)
 app.get('/tasks', async (req, res) => {
   try {
-    const tasks = await prisma.task.findMany();
+    const { isCompleted } = req.query;
+
+    let tasks;
+
+    if (isCompleted !== undefined) {
+      tasks = await prisma.task.findMany({
+        where: {
+          isCompleted: isCompleted === 'true',
+        },
+      });
+    } else {
+      tasks = await prisma.task.findMany();
+    }
+
     res.json(tasks);
   } catch (error) {
     res.status(500).json({ error: 'Hubo un error al obtener las tareas.' });
